@@ -41,3 +41,6 @@ Send us the project and answer to those simple questions :
 - Which feature did you develop and why ? 
 - Do you have any feedback about the code / architecture of the project and what was the difficulty you encountered while doing it ? 
 
+
+# Bug Fixes
+![Bug One Image](image.png)

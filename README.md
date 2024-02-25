@@ -1,3 +1,26 @@
+
+# Bug Fixes
+![Bug One Fixed](image.png)
+
+![Bug Two Fixed](image-1.png)
+
+![Bug Three Fixed](image-2.png)
+
+![Bug Four Fixed](image-3.png)
+
+![Bug Five Fixed](image-4.png)
+
+![Bug Six Fixed](image-6.png)
+
+
+
+# Feature Added 
+![Delete All feature](image-5.png)  
+
+![Backend code](image-7.png)
+
+
+
 # Technical test
 
 ## Introduction
@@ -43,4 +66,21 @@ Send us the project and answer to those simple questions :
 
 
 # Bug Fixes
-![Bug One Image](image.png)
+![Bug One Fixed](image.png)
+
+![Bug Two Fixed](image-1.png)
+
+![Bug Three Fixed](image-2.png)
+
+![Bug Four Fixed](image-3.png)
+
+![Bug Five Fixed](image-4.png)
+
+![Bug Six Fixed](image-6.png)
+
+
+
+# Feature Added 
+![Delete All feature](image-5.png)  
+
+![Backend code](image-7.png)

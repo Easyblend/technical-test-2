@@ -8,6 +8,7 @@ import LoadingButton from "../../components/loadingButton";
 import ProgressBar from "../../components/ProgressBar";
 
 import api from "../../services/api";
+
 const ProjectList = () => {
   const [projects, setProjects] = useState(null);
   const [activeProjects, setActiveProjects] = useState(null);
@@ -20,6 +21,8 @@ const ProjectList = () => {
       setProjects(u);
     })();
   }, []);
+
+  console.log(projects);
 
   useEffect(() => {
     const p = (projects || []).filter((p) => p.status === "active");
@@ -35,7 +38,7 @@ const ProjectList = () => {
 
   return (
     <div className="w-full p-2 md:!px-8">
-      <Create onChangeSearch={handleSearch} />
+      <Create onChangeSearch={handleSearch} setProjects={setProjects} />
       <div className="py-3">
         {activeProjects.map((hit) => {
           return (
@@ -92,8 +95,11 @@ const Budget = ({ project }) => {
   return <ProgressBar percentage={width} max={budget_max_monthly} value={total} />;
 };
 
-const Create = ({ onChangeSearch }) => {
+const Create = ({ onChangeSearch, setProjects, projects }) => {
   const [open, setOpen] = useState(false);
+
+
+  const history = useHistory();
 
   return (
     <div className="mb-[10px] ">
@@ -123,56 +129,102 @@ const Create = ({ onChangeSearch }) => {
           }}>
           Create new project
         </button>
+        <button
+          className="bg-[#fd0505] text-[#fff] py-[12px] px-[20px] rounded-[10px] text-[16px] font-medium"
+          onClick={
+
+            async () => {
+              setProjects([]);
+              const confirm = window.confirm("Are you sure ?");
+              if (!confirm) return;
+              await api.remove(`/project/`);
+              toast.success("successfully removed!");
+              history.push("/project");
+            }
+
+          }>
+          Delete all projects
+        </button>
+
       </div>
 
-      {open ? (
-        <div
-          className=" absolute top-0 bottom-0 left-0 right-0 bg-[#00000066] flex justify-center p-[1rem] z-50 "
-          onClick={() => {
-            setOpen(false);
-          }}>
+      {
+        open ? (
           <div
-            className="w-full md:w-[60%] max-h-[200px] bg-[white] p-[25px] rounded-md"
-            onClick={(e) => {
-              e.stopPropagation();
+            className=" absolute top-0 bottom-0 left-0 right-0 bg-[#00000066]  flex justify-center p-[1rem] z-50 "
+            onClick={() => {
+              setOpen(false);
             }}>
-            {/* Modal Body */}
-            <Formik
-              initialValues={{}}
-              onSubmit={async (values, { setSubmitting }) => {
-                try {
-                  values.status = "active";
-                  const res = await api.post("/project", values);
-                  if (!res.ok) throw res;
-                  toast.success("Created!");
-                  setOpen(false);
-                } catch (e) {
-                  console.log(e);
-                  toast.error("Some Error!", e.code);
-                }
-                setSubmitting(false);
+            <div
+              className="w-full md:w-[60%] h-max bg-[white] p-[25px] rounded-md"
+              onClick={(e) => {
+                e.stopPropagation();
               }}>
-              {({ values, handleChange, handleSubmit, isSubmitting }) => (
-                <React.Fragment>
-                  <div className="w-full md:w-6/12 text-left">
-                    <div>
-                      <div className="text-[14px] text-[#212325] font-medium	">Name</div>
-                      <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="name" value={values.name} onChange={handleChange} />
+              {/* Modal Body */}
+              <Formik
+                initialValues={{}}
+                onSubmit={async (values, { setSubmitting }) => {
+                  try {
+                    console.log(values);
+                    values.status = "active";
+                    const res = await api.post("/project", values);
+                    if (!res.ok) throw res;
+                    toast.success("Created!");
+                    const { data: u } = await api.get("/project");
+                    setProjects(u);
+
+
+                    setOpen(false);
+                  } catch (e) {
+                    console.log(e);
+                    toast.error("Some Error!", e.code);
+                  }
+                  setSubmitting(false);
+                }}>
+                {({ values, handleChange, handleSubmit, isSubmitting }) => (
+                  <React.Fragment>
+                    <div className="w-full flex flex-col gap-10 md:w-5/6 text-left mx-auto" >
+                      <div className="flex justify-between flex-wrap">
+                        <div>
+                          <div className="text-[14px] text-[#212325] font-medium	">Name</div>
+                          <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="name" value={values.name} onChange={handleChange} />
+                        </div>
+                        <div>
+                          <div className="text-[14px] text-[#212325]  font-medium	">Lead Name</div>
+                          <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="lead_name" value={values.lead} onChange={handleChange} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[14px] text-[#212325] font-medium	">Project Description</div>
+                        <textarea className="projectsInput h-16 text-[14px] font-normal text-[#212325] rounded-[10px]" name="description" value={values.description} onChange={handleChange} />
+                      </div>
+                      <div>
+                        <div className="text-[14px] text-[#212325] font-medium	">Project Objective</div>
+                        <textarea className="projectsInput h-16 text-[14px] font-normal text-[#212325] rounded-[10px]" name="objective" value={values.objective} onChange={handleChange} />
+                      </div>
+                      <div>
+                        <div className="text-[14px] text-[#212325] font-medium	">Status</div>
+                        <select className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="status" value={values.status} onChange={handleChange}>
+                          <option value=""></option>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </select>
+                      </div>
+                      <LoadingButton
+                        className="mt-[1rem] bg-[#0560FD] text-[16px] font-medium text-[#FFFFFF] py-[12px] px-[22px] rounded-[10px]"
+                        loading={isSubmitting}
+                        onClick={handleSubmit}>
+                        Create
+                      </LoadingButton>
                     </div>
-                    <LoadingButton
-                      className="mt-[1rem] bg-[#0560FD] text-[16px] font-medium text-[#FFFFFF] py-[12px] px-[22px] rounded-[10px]"
-                      loading={isSubmitting}
-                      onClick={handleSubmit}>
-                      Create
-                    </LoadingButton>
-                  </div>
-                </React.Fragment>
-              )}
-            </Formik>
+                  </React.Fragment>
+                )}
+              </Formik>
+            </div>
           </div>
-        </div>
-      ) : null}
-    </div>
+        ) : null
+      }
+    </div >
   );
 };
 

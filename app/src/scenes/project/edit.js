@@ -45,19 +45,26 @@ export default function EditProject() {
             </button>
           </div>
           <Formik
-            initialValues={project}
+            initialValues={{ ...project, lead: project.lead || "", status: project.status || "", budget_max_monthly: project.budget_max_monthly || "", paymentCycle: project.paymentCycle || "", description: project.description || "", objective: project.objective || "", website: project.website || "", links: project.links || [] }}
             onSubmit={async (values) => {
               try {
-                await api.put(`/project/${project._id}`, values);
-                toast.success(`${project.name} updated!`);
-                history.push(`/project/${project._id}`);
+
+                console.log(values);
+
+                //Fixed undefined error on getting the values from the project
+
+                await api.put(`/project/${project[0]._id}`, values);
+                toast.success(`${project[0].name} updated!`);
+                history.push(`/project/${project[0]._id}`);
               } catch (e) {
                 console.log(e);
                 toast.error("Some Error!");
               }
             }}>
+
             {({ values, handleChange, handleSubmit, isSubmitting }) => (
               <React.Fragment>
+
                 <div className="flex gap-4 pl-4 pt-4">
                   {project.logo && <img className="w-[85px] h-[85px] border border-[#E5EAEF] rounded-[8px]" src={project.logo} alt="ProjectImage.png" />}
                 </div>
@@ -65,16 +72,16 @@ export default function EditProject() {
                 <div className="py-3 px-4">
                   <div className="flex gap-4 flex-wrap">
                     <div className="w-full md:w-[260px] mt-2">
-                      <div className="text-[14px] text-[#212325] font-medium	">Name of project</div>
-                      <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="name" disabled value={values.name} onChange={handleChange} />
+                      <div className="text-[14px] text-[#212325] font-medium	">Name of project</div>   {/*FIXED the name of the project was not being displayed*/}
+                      <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="name" disabled value={values[0].name} onChange={handleChange} />
                     </div>
                     <div className="w-full md:w-[260px] mt-2">
                       <div className="text-[14px] text-[#212325] font-medium	">Lead by name</div>
-                      <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="lead" value={values.lead} onChange={handleChange} />
+                      <input className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="lead" value={values[0].lead} onChange={handleChange} />
                     </div>
                     <div className="w-full md:w-[260px] mt-2">
                       <div className="text-[14px] text-[#212325] font-medium	">Status</div>
-                      <select className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="status" value={values.status} onChange={handleChange}>
+                      <select className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]" name="status" value={values[0].status} onChange={handleChange}>
                         <option value=""></option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
@@ -88,7 +95,7 @@ export default function EditProject() {
                         className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]"
                         type="number"
                         name="budget_max_monthly"
-                        value={values.budget_max_monthly}
+                        value={values[0].budget_max_monthly}
                         onChange={handleChange}
                       />
                     </div>
@@ -97,7 +104,7 @@ export default function EditProject() {
                       <select
                         className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]"
                         name="paymentCycle"
-                        value={values.paymentCycle}
+                        value={values[0].paymentCycle}
                         onChange={handleChange}>
                         <option value=""></option>
                         <option value="MONTHLY">Monthly</option>
@@ -114,7 +121,7 @@ export default function EditProject() {
                       rows="5"
                       placeholder="Please your comment...."
                       name="description"
-                      value={values.description}
+                      value={values[0].description}
                       onChange={handleChange}></textarea>
                   </div>
 
@@ -126,7 +133,7 @@ export default function EditProject() {
                       rows="5"
                       placeholder="Please your comment...."
                       name="objective"
-                      value={values.objective}
+                      value={values[0].objective}
                       onChange={handleChange}></textarea>
                   </div>
                   <div className="text-xl mt-8">Links</div>
@@ -137,61 +144,20 @@ export default function EditProject() {
 
                   <div className="w-full mt-3">
                     <div className="text-[14px] text-[#212325] font-medium	">Autres</div>
-                    {(values.links || []).map((link) => {
-                      return (
-                        <div className="flex flex-1 flex-row mt-2 items-center gap-1">
-                          <div className="flex gap-1 flex-1 items-center">
-                            <input
-                              className="projectsInput mt-0 text-[14px] font-normal text-[#212325] rounded-[10px]"
-                              value={link.label}
-                              onChange={(e) => {
-                                const links = values.links.reduce((prev, current) => {
-                                  const tempLink = current;
-                                  if (current.url === link.url) {
-                                    tempLink.label = e.target.value;
-                                  }
-                                  return [...prev, tempLink];
-                                }, []);
-                                handleChange({ target: { value: links, name: "links" } });
-                              }}
-                            />
-                            <input
-                              className="projectsInput mt-0 text-[14px] font-normal text-[#212325] rounded-[10px]"
-                              value={link.url}
-                              onChange={(e) => {
-                                const links = values.links.reduce((prev, current) => {
-                                  const tempLink = current;
-                                  if (current.label === link.label) {
-                                    tempLink.url = e.target.value;
-                                  }
-                                  return [...prev, tempLink];
-                                }, []);
-                                handleChange({ target: { value: links, name: "links" } });
-                              }}
-                            />
-                          </div>
-                          <div className={`flex justify-center cursor-pointer text-xl hover:text-red-500`}>
-                            <MdDeleteForever
-                              onClick={() => {
-                                const newLinks = values.links.filter((l) => l.url !== link.url);
-                                handleChange({ target: { value: newLinks, name: "links" } });
-                              }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+                    {/*FIXED the add input to a list function,  We needed to add the input to the values array first before mapping 
+              through the array to display each added item, This requires us to run the the mapping of the values after the form submission*/}
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
                         const newLink = {
-                          label: bufferOtherLinkLabel || bufferOtherLink,
-                          url: bufferOtherLink,
+                          label: bufferOtherLinkLabel || "",
+                          url: bufferOtherLink || "",
                         };
-                        handleChange({ target: { value: [...values.links, newLink], name: "links" } });
+                        handleChange({ target: { value: [...values, newLink], name: "links" } });
                         setBufferOtherLink("");
                         setBufferOtherLinkLabel("");
-                      }}>
+                      }}
+                    >
                       <input
                         className="projectsInput text-[14px] font-normal text-[#212325] rounded-[10px]"
                         name="other-links-label"
@@ -218,6 +184,51 @@ export default function EditProject() {
                       ) : null}
                     </form>
                   </div>
+                  {(values.links || []).map((link) => {
+                    return (
+                      <div className="flex flex-1 flex-row mt-2 items-center gap-1">
+                        <div className="flex gap-1 flex-1 items-center">
+                          <input
+                            className="projectsInput mt-0 text-[14px] font-normal text-[#212325] rounded-[10px]"
+                            value={link.label}
+                            onChange={(e) => {
+                              const links = values.links.reduce((prev, current) => {
+                                const tempLink = current;
+                                if (current.url === link.url) {
+                                  tempLink.label = e.target.value;
+                                }
+                                return [...prev, tempLink];
+                              }, []);
+                              handleChange({ target: { value: links, name: "links" } });
+                            }}
+                          />
+                          <input
+                            className="projectsInput mt-0 text-[14px] font-normal text-[#212325] rounded-[10px]"
+                            value={link.url}
+                            onChange={(e) => {
+                              const links = values.links.reduce((prev, current) => {
+                                const tempLink = current;
+                                if (current.label === link.label) {
+                                  tempLink.url = e.target.value;
+                                }
+                                return [...prev, tempLink];
+                              }, []);
+                              handleChange({ target: { value: links, name: "links" } });
+                            }}
+                          />
+                        </div>
+                        <div className={`flex justify-center cursor-pointer text-xl hover:text-red-500`}>
+                          <MdDeleteForever
+                            onClick={() => {
+
+                              const newLinks = values.links.filter((l) => l.url !== link.url);
+                              handleChange({ target: { value: newLinks, name: "links" } });
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
                 <div className="flex ml-3 mt-2">
                   <LoadingButton

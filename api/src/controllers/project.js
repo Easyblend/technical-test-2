@@ -71,4 +71,24 @@ router.delete("/:id", passport.authenticate("user", { session: false }), async (
   }
 });
 
+router.delete("/all", passport.authenticate("user", { session: false }), async (req, res) => {
+  try {
+    await ProjectObject.deleteMany({});
+    res.status(200).send({ ok: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ ok: false, code: SERVER_ERROR, error });
+  }
+});
+
+router.delete("/", passport.authenticate("user", { session: false }), async (req, res) => {
+  try {
+    await ProjectObject.deleteMany({});
+    res.status(200).send({ ok: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ ok: false, code: SERVER_ERROR, error });
+  }
+});
+
 module.exports = router;
